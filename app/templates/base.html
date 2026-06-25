@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Vision of Scale{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'void': '#0a0a0f',
+                        'surface': '#1a1a2e',
+                        'surface-light': '#252540',
+                        'accent': '#6c63ff',
+                        'accent-glow': '#8b83ff',
+                        'text-primary': '#e0e0e0',
+                        'text-muted': '#8888aa',
+                        'danger': '#ef4444',
+                        'success': '#22c55e',
+                    },
+                    fontFamily: {
+                        'display': ['Georgia', 'Times New Roman', 'serif'],
+                        'body': ['system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+    <!-- Alpine.js -->
+    <script src="https://unpkg.com/alpinejs@3.14.9" defer></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/app.css">
+
+    <style>
+        body {
+            background-color: #0a0a0f;
+            color: #e0e0e0;
+        }
+        .font-display {
+            font-family: Georgia, 'Times New Roman', serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-text-primary font-body antialiased" x-data="{ bgIndex: Math.floor(Math.random() * 4) }">
+
+    <!-- Background Layer -->
+    <div class="fixed inset-0 z-0">
+        <img :src="'/static/generated/' + ['gen3_aeeffec8-9ac.png','gen4_d226771f-0f3.png','gen5_75aae1b8-38b.png','gen6_0237c6b4-f7c.png'][bgIndex]"
+             class="absolute inset-0 w-full h-full object-cover"
+             alt="Megastructure background">
+        <div class="absolute inset-0 bg-gradient-to-b from-void/30 via-transparent to-void/40 z-10"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav x-data="{ mobileOpen: false }" class="relative z-50 fixed top-0 left-0 right-0 bg-void/75 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="/" class="flex items-center gap-3 group">
+                    <div class="w-9 h-9 rounded-lg bg-accent/20 flex items-center justify-center group-hover:bg-accent/30 transition-colors">
+                        <svg class="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <span class="text-xl font-display tracking-widest text-text-primary group-hover:text-white transition-colors">VISION OF SCALE</span>
+                </a>
+
+                <!-- Desktop Links -->
+                <div class="hidden md:flex items-center gap-1">
+                    <a href="/" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {% if active_page == 'home' %}bg-accent/20 text-accent-glow{% else %}text-text-muted hover:text-white hover:bg-white/5{% endif %}">Generate</a>
+                    <a href="/gallery" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {% if active_page == 'gallery' %}bg-accent/20 text-accent-glow{% else %}text-text-muted hover:text-white hover:bg-white/5{% endif %}">Gallery</a>
+                    <a href="/templates" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {% if active_page == 'templates' %}bg-accent/20 text-accent-glow{% else %}text-text-muted hover:text-white hover:bg-white/5{% endif %}">Templates</a>
+                </div>
+
+                <!-- Mobile toggle -->
+                <button @click="mobileOpen = !mobileOpen" class="md:hidden p-2 rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path x-show="!mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        <path x-show="mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Links -->
+            <div x-show="mobileOpen" x-transition class="md:hidden pb-4 flex flex-col gap-1">
+                <a href="/" class="px-4 py-3 rounded-lg text-sm font-medium {% if active_page == 'home' %}bg-accent/20 text-accent-glow{% else %}text-text-muted hover:text-white{% endif %}">Generate</a>
+                <a href="/gallery" class="px-4 py-3 rounded-lg text-sm font-medium {% if active_page == 'gallery' %}bg-accent/20 text-accent-glow{% else %}text-text-muted hover:text-white{% endif %}">Gallery</a>
+                <a href="/templates" class="px-4 py-3 rounded-lg text-sm font-medium {% if active_page == 'templates' %}bg-accent/20 text-accent-glow{% else %}text-text-muted hover:text-white{% endif %}">Templates</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 pt-16 min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Toast Container -->
+    <div x-data="toast()" x-show="visible" x-transition.opacity
+         class="fixed bottom-6 right-6 z-50 max-w-sm pointer-events-none">
+        <div :class="type === 'error' ? 'bg-red-900/90 border-red-500/50' : 'bg-surface border-white/10'"
+             class="pointer-events-auto rounded-xl border p-4 shadow-2xl backdrop-blur-xl animate-slide-up">
+            <div class="flex items-start gap-3">
+                <span x-show="type === 'success'" class="text-success text-lg">✓</span>
+                <span x-show="type === 'error'" class="text-danger text-lg">✗</span>
+                <div class="flex-1">
+                    <p x-text="message" class="text-sm"></p>
+                </div>
+                <button @click="hide()" class="text-text-muted hover:text-white transition-colors">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="/static/js/app.js"></script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

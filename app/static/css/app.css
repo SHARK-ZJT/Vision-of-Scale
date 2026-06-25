@@ -1,0 +1,126 @@
+/* ===== Animations ===== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-skeleton {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-fade-in { animation: fadeIn 0.5s ease-out; }
+.animate-slide-up { animation: slideUp 0.4s ease-out; }
+.animate-slide-down { animation: slideDown 0.3s ease-out; }
+.animate-spin-slow { animation: spin-slow 3s linear infinite; }
+
+/* ===== Skeleton Loading ===== */
+.skeleton {
+    background: linear-gradient(90deg, #1a1a2e 25%, #252540 50%, #1a1a2e 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 8px;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #252540;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #3a3a5c;
+}
+
+/* ===== Lightbox ===== */
+.lightbox-overlay {
+    backdrop-filter: blur(16px);
+}
+
+/* ===== Glass Effect ===== */
+.glass {
+    background: rgba(26, 26, 46, 0.5);
+    backdrop-filter: blur(14px) saturate(1.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ===== Focus Styles ===== */
+input:focus, textarea:focus, select:focus, button:focus-visible {
+    outline: none;
+    ring: 2px solid #6c63ff;
+    ring-offset: 2px;
+    ring-offset-color: #0a0a0f;
+}
+
+/* ===== HTMX Indicator ===== */
+.htmx-indicator {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.htmx-request .htmx-indicator {
+    opacity: 1;
+}
+
+/* ===== Image Card Hover ===== */
+.generation-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.generation-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(108, 99, 255, 0.12);
+}
+
+/* ===== Generate Button Glow ===== */
+.btn-generate {
+    background: linear-gradient(135deg, #6c63ff 0%, #4a42d4 100%);
+    transition: all 0.3s ease;
+    box-shadow: 0 0 24px rgba(108, 99, 255, 0.2);
+}
+.btn-generate:hover:not(:disabled) {
+    box-shadow: 0 0 40px rgba(108, 99, 255, 0.4);
+    transform: translateY(-1px);
+}
+.btn-generate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ===== Template Category Tabs ===== */
+.cat-tab {
+    transition: all 0.2s ease;
+}
+.cat-tab.active {
+    background: rgba(108, 99, 255, 0.2);
+    color: #8b83ff;
+}
+
+/* ===== Toast enter animation ===== */
+.toast-enter {
+    animation: slideUp 0.3s ease-out;
+}

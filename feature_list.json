@@ -1,0 +1,76 @@
+{
+  "features": [
+    {
+      "id": "feat-001",
+      "name": "文生图生成功能",
+      "description": "首页生成器 + POST /api/generate + 火山引擎即梦AI集成，支持1-4张、多种尺寸、种子参数",
+      "dependencies": [],
+      "status": "done",
+      "evidence": "app/routers/generate.py, app/services/image_api.py, app/services/image_storage.py, app/templates/index.html"
+    },
+    {
+      "id": "feat-002",
+      "name": "图库页面 (Gallery)",
+      "description": "瀑布流图库 + 无限滚动 + 筛选 + Lightbox 查看，支持按收藏/模板筛选",
+      "dependencies": ["feat-001"],
+      "status": "done",
+      "evidence": "app/routers/gallery.py, app/routers/pages.py (/gallery), app/templates/gallery.html"
+    },
+    {
+      "id": "feat-003",
+      "name": "预设 Prompt 模板库",
+      "description": "24个内置模板（5个分类、中英文），模板库页面 + 首页侧边栏 + 分类筛选",
+      "dependencies": ["feat-001"],
+      "status": "done",
+      "evidence": "app/services/seed_data.py, app/routers/templates_api.py, app/templates/template_library.html"
+    },
+    {
+      "id": "feat-004",
+      "name": "收藏功能前端 UI (Collections)",
+      "description": "后端 API 已完成（CRUD + 添加图片），需要前端页面：收藏列表页、创建/编辑/删除收藏、在图库中添加到收藏",
+      "dependencies": ["feat-002"],
+      "status": "in-progress",
+      "evidence": "app/models/collection.py, app/schemas/collection.py, app/routers/collections_api.py"
+    },
+    {
+      "id": "feat-005",
+      "name": "用户自定义 Prompt 模板",
+      "description": "允许用户创建、编辑、删除自己的模板，与内置模板分开显示",
+      "dependencies": ["feat-003"],
+      "status": "not-started",
+      "evidence": ""
+    },
+    {
+      "id": "feat-006",
+      "name": "图生图 / 风格迁移",
+      "description": "基于参考图片生成（如果即梦AI支持），上传参考图 + 风格选择",
+      "dependencies": ["feat-001"],
+      "status": "not-started",
+      "evidence": ""
+    },
+    {
+      "id": "feat-007",
+      "name": "批量生成队列",
+      "description": "批量提交多个 prompt，后台排队生成，进度通知",
+      "dependencies": ["feat-001"],
+      "status": "not-started",
+      "evidence": ""
+    },
+    {
+      "id": "feat-008",
+      "name": "收藏导出为 ZIP",
+      "description": "将收藏中的图片打包为 ZIP 下载",
+      "dependencies": ["feat-004"],
+      "status": "not-started",
+      "evidence": ""
+    },
+    {
+      "id": "feat-009",
+      "name": "用户认证系统",
+      "description": "登录/注册，用户隔离的数据，多用户支持",
+      "dependencies": [],
+      "status": "not-started",
+      "evidence": ""
+    }
+  ]
+}

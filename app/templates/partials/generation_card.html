@@ -1,0 +1,39 @@
+<div class="generation-card glass rounded-2xl overflow-hidden group animate-fade-in"
+     id="gen-card-{{ gen.id }}">
+    <!-- Thumbnail -->
+    <div class="relative aspect-square overflow-hidden bg-black/30">
+        {% if gen.thumbnail_path %}
+        <img src="/static/{{ gen.thumbnail_path }}"
+             alt="Generated image"
+             class="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+             loading="lazy"
+             onclick="window.showLightbox('/static/{{ gen.local_path }}', '{{ gen.prompt | e }}', '{{ gen.size }}')">
+        {% else %}
+        <div class="w-full h-full flex items-center justify-center">
+            <svg class="w-12 h-12 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+            </svg>
+        </div>
+        {% endif %}
+
+        <!-- Delete button (shows on hover) -->
+        <button hx-delete="/api/generations/{{ gen.id }}"
+                hx-target="#gen-card-{{ gen.id }}"
+                hx-swap="outerHTML swap:0.3s"
+                hx-confirm="Delete this generation?"
+                class="absolute top-2 right-2 p-2 rounded-lg bg-void/80 text-text-muted hover:text-danger hover:bg-void/95 opacity-0 group-hover:opacity-100 transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Info -->
+    <div class="p-3">
+        <p class="text-xs text-text-muted leading-relaxed line-clamp-2 mb-2">{{ gen.prompt | truncate(80) }}</p>
+        <div class="flex items-center justify-between">
+            <span class="text-[10px] text-text-muted">{{ gen.size }}</span>
+            <span class="text-[10px] text-text-muted">{{ gen.created_at[:10] if gen.created_at else '' }}</span>
+        </div>
+    </div>
+</div>

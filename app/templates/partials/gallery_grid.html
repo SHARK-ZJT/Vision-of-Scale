@@ -1,0 +1,16 @@
+{% for gen in generations %}
+    {% include "partials/generation_card.html" %}
+{% endfor %}
+
+{% if has_more %}
+<div hx-get="/htmx/gallery-grid?page={{ page + 1 }}{% if current_collection_id %}&collection_id={{ current_collection_id }}{% endif %}{% if current_template_id %}&template_id={{ current_template_id }}{% endif %}"
+     hx-trigger="revealed"
+     hx-swap="outerHTML"
+     class="col-span-full mt-4 flex justify-center">
+    <div class="skeleton w-32 h-8 rounded-lg"></div>
+</div>
+{% else %}
+<div class="col-span-full text-center py-8">
+    <p class="text-sm text-text-muted">— End of gallery —</p>
+</div>
+{% endif %}

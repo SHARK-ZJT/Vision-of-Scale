@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Vision of Scale — Gallery{% endblock %}
+
+{% block content %}
+<div x-data="{ activeCollection: {{ current_collection_id or 'null' }}, activeSort: 'newest', showCreateCol: false, colName: '', colDesc: '' }" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-display tracking-wide text-white mb-2">Gallery</h1>
+        <p class="text-text-muted text-sm">{{ total }} generated image{{ 's' if total != 1 else '' }}</p>
+    </div>
+
+    <!-- Filters Bar -->
+    <div class="flex flex-wrap items-center gap-3 mb-8">
+        <!-- Collection filter -->
+        <div class="relative" x-data="{ open: false }">
+            <button @click="open = !open"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface border border-white/10 text-sm text-text-primary hover:border-white/20 transition-colors">
+                <svg class="w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+                </svg>
+                <span>All Collections</span>
+            </button>
+            <div x-show="open" @click.outside="open = false" x-transition
+                 class="absolute top-full mt-2 w-56 bg-surface border border-white/10 rounded-xl p-1.5 shadow-xl z-30">
+                <a href="/gallery"
+                   class="block px-3 py-2 rounded-lg text-sm text-text-muted hover:text-white hover:bg-white/5 transition-colors">All Collections</a>
+                {% for col in collections %}
+                <a href="/gallery?collection_id={{ col.id }}"
+                   class="block px-3 py-2 rounded-lg text-sm {% if current_collection_id == col.id %}bg-accent/20 text-white{% else %}text-text-muted hover:text-white hover:bg-white/5{% endif %} transition-colors">
+                    {{ col.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Sort -->
+        <div class="relative" x-data="{ open: false }">
+            <button @click="open = !open"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface border border-white/10 text-sm text-text-primary hover:border-white/20 transition-colors">
+                <svg class="w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+                </svg>
+                <span x-text="activeSort === 'newest' ? 'Newest First' : 'Oldest First'"></span>
+            </button>
+            <div x-show="open" @click.outside="open = false" x-transition
+                 class="absolute top-full mt-2 w-44 bg-surface border border-white/10 rounded-xl p-1.5 shadow-xl z-30">
+                <a href="?sort=newest{% if current_collection_id %}&collection_id={{ current_collection_id }}{% endif %}"
+                   class="block px-3 py-2 rounded-lg text-sm {% if sort == 'newest' or not sort %}bg-accent/20 text-white{% else %}text-text-muted hover:text-white{% endif %} transition-colors">Newest First</a>
+                <a href="?sort=oldest{% if current_collection_id %}&collection_id={{ current_collection_id }}{% endif %}"
+                   class="block px-3 py-2 rounded-lg text-sm {% if sort == 'oldest' %}bg-accent/20 text-white{% else %}text-text-muted hover:text-white{% endif %} transition-colors">Oldest First</a>
+            </div>
+        </div>
+
+        <!-- New Collection Button -->
+        <button @click="showCreateCol = true; colName = ''; colDesc = ''"
+                class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent/20 text-accent-glow hover:bg-accent/30 transition-colors text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Collection
+        </button>
+
+        <!-- Page info -->
+        <span class="ml-auto text-xs text-text-muted">Page {{ page }} of {{ pages }}</span>
+    </div>
+
+    <!-- Create Collection Modal -->
+    <div x-show="showCreateCol" @click.self="showCreateCol = false" x-transition
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-void/80 backdrop-blur-sm"
+         style="display: none;">
+        <div class="w-full max-w-md glass rounded-2xl p-6 animate-slide-up" @click.stop>
+            <h3 class="text-lg font-display text-white mb-4">Create Collection</h3>
+            <input type="text" x-model="colName" placeholder="Collection name..."
+                   class="w-full bg-void border border-white/10 rounded-xl px-4 py-3 text-sm text-text-primary placeholder-text-muted focus:border-accent/50 transition-colors mb-3">
+            <textarea x-model="colDesc" rows="2" placeholder="Description (optional)..."
+                      class="w-full bg-void border border-white/10 rounded-xl px-4 py-3 text-sm text-text-primary placeholder-text-muted resize-none focus:border-accent/50 transition-colors mb-4"></textarea>
+            <div class="flex gap-3">
+                <button @click="showCreateCol = false"
+                        class="flex-1 px-4 py-2.5 rounded-xl border border-white/10 text-text-muted hover:text-white transition-colors text-sm">Cancel</button>
+                <button @click="window.createCollection(colName, colDesc).then(ok => { if (ok) { showCreateCol = false; window.location.reload(); } })"
+                        :disabled="!colName.trim()"
+                        class="flex-1 px-4 py-2.5 rounded-xl bg-accent/20 text-accent-glow hover:bg-accent/30 disabled:opacity-40 transition-colors text-sm font-medium">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gallery Grid -->
+    {% if generations %}
+    <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {% for gen in generations %}
+            {% include "partials/generation_card.html" %}
+        {% endfor %}
+    </div>
+
+    <!-- Infinite Scroll Sentinel -->
+    {% if page < pages %}
+    <div hx-get="/htmx/gallery-grid?page={{ page + 1 }}{% if current_collection_id %}&collection_id={{ current_collection_id }}{% endif %}{% if current_template_id %}&template_id={{ current_template_id }}{% endif %}"
+         hx-trigger="revealed"
+         hx-swap="beforeend"
+         hx-target="#gallery-grid"
+         class="mt-8 flex justify-center">
+        <div class="skeleton w-32 h-8 rounded-lg"></div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-20">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-surface border border-white/5 flex items-center justify-center">
+            <svg class="w-10 h-10 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+            </svg>
+        </div>
+        <h3 class="text-lg font-display text-white mb-2">No Images Yet</h3>
+        <p class="text-sm text-text-muted max-w-md mx-auto mb-6">
+            Generate your first megastructure image to see it here in the gallery.
+        </p>
+        <a href="/" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent/20 text-accent-glow hover:bg-accent/30 transition-colors text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Create First Image
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Lightbox Modal (same as index) -->
+<div x-data="lightbox()" x-show="open" @click="closeOnBackdrop($event)" x-transition
+     class="lightbox-overlay fixed inset-0 z-[60] flex items-center justify-center p-4 bg-void/90">
+    <div class="max-w-5xl w-full max-h-[90vh] glass rounded-2xl overflow-hidden animate-slide-up">
+        <div class="flex items-center justify-between p-4 border-b border-white/5">
+            <span class="text-sm text-text-muted" x-text="metadata.size || ''"></span>
+            <button @click="close()" class="p-2 rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-colors">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <img :src="imageSrc" class="w-full max-h-[70vh] object-contain bg-black/50">
+        <div class="p-4 border-t border-white/5">
+            <p class="text-sm text-text-primary line-clamp-3" x-text="prompt"></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

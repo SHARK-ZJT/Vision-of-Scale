@@ -1,0 +1,28 @@
+# Environment
+.env
+
+# Database
+*.db
+*.db-journal
+
+# Generated images
+app/static/generated/*
+!app/static/generated/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

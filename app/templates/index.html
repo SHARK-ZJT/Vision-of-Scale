@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block title %}Vision of Scale — Generate{% endblock %}
+
+{% block content %}
+<div x-data="generatorApp()" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex gap-6">
+        <!-- Template Sidebar -->
+        <aside x-show="sidebarOpen" x-transition
+               class="hidden lg:block w-72 flex-shrink-0">
+            <div class="sticky top-24 glass rounded-2xl p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-text-muted uppercase tracking-wider">Templates</h3>
+                    <button @click="sidebarOpen = false" class="text-text-muted hover:text-white transition-colors">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Search -->
+                <input type="text" x-model="searchQuery" placeholder="Search templates..."
+                       class="w-full bg-void border border-white/10 rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-accent/50 transition-colors mb-3">
+
+                <!-- Category filter -->
+                <div class="flex flex-wrap gap-1.5 mb-4">
+                    <button @click="filterByCategory('all')"
+                            :class="activeCategory === 'all' ? 'bg-accent/20 text-accent-glow' : 'text-text-muted hover:text-white hover:bg-white/5'"
+                            class="px-2.5 py-1 rounded-md text-xs font-medium transition-colors">All</button>
+                    <button @click="filterByCategory('megastructure')"
+                            :class="activeCategory === 'megastructure' ? 'bg-accent/20 text-accent-glow' : 'text-text-muted hover:text-white hover:bg-white/5'"
+                            class="px-2.5 py-1 rounded-md text-xs font-medium transition-colors">Mega</button>
+                    <button @click="filterByCategory('contrast')"
+                            :class="activeCategory === 'contrast' ? 'bg-accent/20 text-accent-glow' : 'text-text-muted hover:text-white hover:bg-white/5'"
+                            class="px-2.5 py-1 rounded-md text-xs font-medium transition-colors">Contrast</button>
+                    <button @click="filterByCategory('post_human')"
+                            :class="activeCategory === 'post_human' ? 'bg-accent/20 text-accent-glow' : 'text-text-muted hover:text-white hover:bg-white/5'"
+                            class="px-2.5 py-1 rounded-md text-xs font-medium transition-colors">Post-Human</button>
+                    <button @click="filterByCategory('interior')"
+                            :class="activeCategory === 'interior' ? 'bg-accent/20 text-accent-glow' : 'text-text-muted hover:text-white hover:bg-white/5'"
+                            class="px-2.5 py-1 rounded-md text-xs font-medium transition-colors">Interior</button>
+                    <button @click="filterByCategory('landscape')"
+                            :class="activeCategory === 'landscape' ? 'bg-accent/20 text-accent-glow' : 'text-text-muted hover:text-white hover:bg-white/5'"
+                            class="px-2.5 py-1 rounded-md text-xs font-medium transition-colors">Landscape</button>
+                </div>
+
+                <!-- Template List -->
+                <div class="space-y-1.5 max-h-[calc(100vh-360px)] overflow-y-auto pr-1">
+                    <template x-for="tpl in filteredTemplates" :key="tpl.id">
+                        <button @click="useTemplate(tpl)"
+                                class="w-full text-left p-3 rounded-xl hover:bg-white/5 transition-colors group"
+                                :class="templateId === tpl.id ? 'bg-accent/10 border border-accent/30' : 'border border-transparent'">
+                            <p class="text-sm font-medium text-text-primary group-hover:text-white truncate" x-text="tpl.name"></p>
+                            <p class="text-xs text-text-muted mt-0.5 line-clamp-2" x-text="tpl.description"></p>
+                            <div class="flex items-center gap-1.5 mt-1.5">
+                                <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-accent/10 text-accent-glow" x-text="tpl.category"></span>
+                                <span x-show="tpl.language === 'zh'" class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-white/5 text-text-muted">中文</span>
+                            </div>
+                        </button>
+                    </template>
+                    <p x-show="filteredTemplates.length === 0" class="text-sm text-text-muted text-center py-4">
+                        No templates found
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Toggle sidebar button (when closed) -->
+        <button x-show="!sidebarOpen" @click="sidebarOpen = true"
+                class="hidden lg:flex fixed left-4 top-24 z-40 w-10 h-10 rounded-xl bg-surface border border-white/10 items-center justify-center hover:bg-surface-light transition-colors">
+            <svg class="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            </svg>
+        </button>
+
+        <!-- Main Content -->
+        <div class="flex-1 min-w-0">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-display tracking-wide text-white mb-2">Generate</h1>
+                <p class="text-text-muted text-sm">Describe a megastructure. Place a human figure for scale. Let the AI paint the awe.</p>
+            </div>
+
+            <!-- Prompt Input -->
+            <div class="glass rounded-2xl p-6 mb-6">
+                <div class="flex items-center justify-between mb-3">
+                    <label class="text-sm font-medium text-text-muted uppercase tracking-wider">Prompt</label>
+                    <span class="text-xs text-text-muted" x-text="charCount + ' / 4000'"></span>
+                </div>
+                <textarea x-ref="promptTextarea" x-model="prompt" rows="5" maxlength="4000"
+                          placeholder="A vast vertical arcology city rising through layers of atmosphere, a single tiny human silhouette on a rocky cliff edge in the foreground, overwhelming scale, golden hour light, photorealistic, 8K..."
+                          class="w-full bg-void border border-white/10 rounded-xl px-4 py-3 text-text-primary placeholder-text-muted resize-none focus:border-accent/50 transition-colors"></textarea>
+
+                <!-- Parameters Row -->
+                <div class="flex flex-wrap gap-3 mt-4">
+                    <!-- Size selector -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open"
+                                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-void border border-white/10 text-sm text-text-primary hover:border-white/20 transition-colors">
+                            <svg class="w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.375 6.75h17.25M3.375 12h17.25m-17.25 5.25h17.25" />
+                            </svg>
+                            <span x-text="sizeLabel"></span>
+                        </button>
+                        <div x-show="open" @click.outside="open = false" x-transition
+                             class="absolute top-full mt-2 w-48 bg-surface border border-white/10 rounded-xl p-1.5 shadow-xl z-30">
+                            <button @click="setSize('4K'); open = false"
+                                    :class="size === '4K' ? 'bg-accent/20 text-white' : 'text-text-muted hover:text-white hover:bg-white/5'"
+                                    class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors">4K Ultra HD — ~3840px</button>
+                            <button @click="setSize('2K'); open = false"
+                                    :class="size === '2K' ? 'bg-accent/20 text-white' : 'text-text-muted hover:text-white hover:bg-white/5'"
+                                    class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors">2K HD — ~2048px</button>
+                            <button @click="setSize('1K'); open = false"
+                                    :class="size === '1K' ? 'bg-accent/20 text-white' : 'text-text-muted hover:text-white hover:bg-white/5'"
+                                    class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors">1K Standard — ~1024px</button>
+                            <div class="border-t border-white/5 my-1.5"></div>
+                            <button @click="setSize('1664x936'); open = false"
+                                    :class="size === '1664x936' ? 'bg-accent/20 text-white' : 'text-text-muted hover:text-white hover:bg-white/5'"
+                                    class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors">16:9 Landscape — 1664×936</button>
+                            <button @click="setSize('936x1664'); open = false"
+                                    :class="size === '936x1664' ? 'bg-accent/20 text-white' : 'text-text-muted hover:text-white hover:bg-white/5'"
+                                    class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors">9:16 Portrait — 936×1664</button>
+                        </div>
+                    </div>
+
+                    <!-- Count selector -->
+                    <div class="flex items-center gap-1 bg-void border border-white/10 rounded-lg">
+                        <button @click="imageCount = Math.max(1, imageCount - 1)"
+                                class="px-3 py-2 text-text-muted hover:text-white transition-colors">−</button>
+                        <span class="px-2 py-2 text-sm text-text-primary min-w-[3ch] text-center" x-text="imageCount"></span>
+                        <button @click="imageCount = Math.min(4, imageCount + 1)"
+                                class="px-3 py-2 text-text-muted hover:text-white transition-colors">+</button>
+                    </div>
+
+                    <!-- Seed input -->
+                    <input type="number" x-model="seed"
+                           class="w-24 bg-void border border-white/10 rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-accent/50 transition-colors"
+                           placeholder="Seed">
+
+                    <!-- Collection selector -->
+                    <select x-model="collectionId"
+                            class="bg-void border border-white/10 rounded-lg px-3 py-2 text-sm text-text-primary focus:border-accent/50 transition-colors">
+                        <option value="">No collection</option>
+                        {% for col in collections %}
+                        <option value="{{ col.id }}">{{ col.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Generate Button -->
+                <div class="mt-6">
+                    <button @click="generate()" data-generate-btn
+                            :disabled="isGenerating || !prompt.trim()"
+                            class="btn-generate w-full py-4 rounded-xl text-white font-semibold text-base flex items-center justify-center gap-3">
+                        <svg x-show="!isGenerating" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                        </svg>
+                        <svg x-show="isGenerating" class="animate-spin-slow w-5 h-5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        <span x-text="isGenerating ? 'Generating...' : 'Generate'"></span>
+                    </button>
+                    <p class="text-xs text-text-muted text-center mt-3">Press Ctrl+Enter to generate</p>
+                </div>
+
+                <!-- Error message -->
+                <div x-show="error" x-transition class="mt-4 p-4 rounded-xl bg-red-900/20 border border-red-500/30">
+                    <p class="text-sm text-red-400" x-text="error"></p>
+                </div>
+            </div>
+
+            <!-- Results Area -->
+            <div x-show="results.length > 0" x-transition class="animate-fade-in">
+                <h2 class="text-lg font-display text-white mb-4">Results</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <template x-for="(img, idx) in results" :key="idx">
+                        <div class="generation-card glass rounded-2xl overflow-hidden group">
+                            <img :src="'/static/' + img.local_path" :alt="'Generated image ' + (idx + 1)"
+                                 class="w-full h-64 object-cover cursor-pointer"
+                                 @click="window.showLightbox('/static/' + img.local_path, prompt, size)">
+                            <div class="p-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-text-muted" x-text="size"></span>
+                                    <a :href="'/static/' + img.local_path" download
+                                       class="text-xs text-accent-glow hover:text-white transition-colors flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Download
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div x-show="results.length === 0 && !isGenerating && !error" class="text-center py-20">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-surface border border-white/5 flex items-center justify-center">
+                    <svg class="w-10 h-10 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-display text-white mb-2">Ready to Create</h3>
+                <p class="text-sm text-text-muted max-w-md mx-auto">
+                    Choose a template from the sidebar or write your own prompt describing a vast megastructure
+                    with a tiny human figure for scale.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Templates data for Alpine.js -->
+<script type="application/json" id="templates-data">
+[
+    {% for tpl in templates %}
+    {
+        "id": {{ tpl.id }},
+        "name": "{{ tpl.name | e }}",
+        "description": "{{ tpl.description | e }}",
+        "prompt_text": "{{ tpl.prompt_text | e }}",
+        "category": "{{ tpl.category }}",
+        "language": "{{ tpl.language }}",
+        "tags": "{{ tpl.tags or '' }}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
+
+<!-- Lightbox Modal -->
+<div x-data="lightbox()" x-show="open" @click="closeOnBackdrop($event)" x-transition
+     class="lightbox-overlay fixed inset-0 z-[60] flex items-center justify-center p-4 bg-void/90">
+    <div class="max-w-5xl w-full max-h-[90vh] glass rounded-2xl overflow-hidden animate-slide-up">
+        <div class="flex items-center justify-between p-4 border-b border-white/5">
+            <span class="text-sm text-text-muted" x-text="metadata.size || ''"></span>
+            <button @click="close()" class="p-2 rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-colors">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <img :src="imageSrc" class="w-full max-h-[70vh] object-contain bg-black/50">
+        <div class="p-4 border-t border-white/5">
+            <p class="text-sm text-text-primary line-clamp-3" x-text="prompt"></p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

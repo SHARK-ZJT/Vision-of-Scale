@@ -1,0 +1,63 @@
+<div class="animate-fade-in">
+    <h2 class="text-lg font-display text-white mb-4">Results</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {% for img in images %}
+        <div class="generation-card glass rounded-2xl overflow-hidden group">
+            {% if img.local_path %}
+            <img src="/static/{{ img.local_path }}"
+                 class="w-full h-64 object-cover cursor-pointer"
+                 onclick="document.querySelector('[x-data=lightbox]').__x.$data.show('/static/{{ img.local_path }}', '{{ prompt | e }}', {size: '{{ size }}'})">
+            {% endif %}
+            <div class="p-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-text-muted">{{ size }}</span>
+                    <a href="/static/{{ img.local_path }}" download
+                       class="text-xs text-accent-glow hover:text-white transition-colors flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Download
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Add to Collection -->
+    <div class="mt-4 p-4 glass rounded-xl flex items-center gap-3">
+        <span class="text-sm text-text-muted">Add to collection:</span>
+        <select id="collection-select-{{ generation_id }}"
+                class="bg-void border border-white/10 rounded-lg px-3 py-2 text-sm text-text-primary focus:border-accent/50 transition-colors">
+            <option value="">Select...</option>
+            {% for col in collections %}
+            <option value="{{ col.id }}">{{ col.name }}</option>
+            {% endfor %}
+        </select>
+        <button onclick="addToCollection({{ generation_id }})"
+                class="px-4 py-2 rounded-lg bg-accent/20 text-accent-glow hover:bg-accent/30 transition-colors text-sm font-medium">
+            Add
+        </button>
+    </div>
+</div>
+
+<script>
+function addToCollection(genId) {
+    const select = document.getElementById('collection-select-' + genId);
+    const colId = select.value;
+    if (!colId) return;
+
+    fetch('/api/collections/' + colId + '/add', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({generation_id: genId})
+    })
+    .then(r => r.json())
+    .then(() => {
+        window.__dispatchToast('Added to collection!', 'success');
+    })
+    .catch(e => {
+        window.__dispatchToast('Failed to add to collection', 'error');
+    });
+}
+</script>
